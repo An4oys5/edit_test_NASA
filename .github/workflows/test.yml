@@ -1,0 +1,53 @@
+name: Selenium Tests
+
+# Триггеры: события, при которых workflow запускается
+on:
+  push:
+    branches:
+      - main       # при пуше в ветку main
+  pull_request:   # и при создании/обновлении PR
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest   # в контейнере Ubuntu
+
+    steps:
+      # 1) Клонируем код
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2) Устанавливаем Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      # 3) Кешируем зависимости (опционально)
+      - name: Cache pip
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      # 4) Устанавливаем зависимости
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # 5) Запускаем тесты
+      - name: Run Selenium tests
+        run: python test_script.py
+
+      # 6) (Опционально) Сохраняем скриншоты или отчёты как артефакты
+      - name: Upload screenshots
+        if: failure()                # только при падении
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-screenshots
+          path: |
+            1_homepage.png
+            2_menu_open.png
+            error.png
