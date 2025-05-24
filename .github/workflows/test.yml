@@ -39,15 +39,14 @@ jobs:
 
       # 5) Запускаем тесты
       - name: Run Selenium tests
-        run: python test_script.py
+        run: python main.py
 
       # 6) (Опционально) Сохраняем скриншоты или отчёты как артефакты
       - name: Upload screenshots
-        if: failure()                # только при падении
+        if: failure()                
         uses: actions/upload-artifact@v3
         with:
           name: test-screenshots
           path: |
             1_homepage.png
-            2_menu_open.png
             error.png
